@@ -3,10 +3,22 @@ const canvas = document.querySelector('.video');
 const ctx = canvas.getContext('2d');
 const faceCanvas = document.querySelector('.face');
 const faceCtx = faceCanvas.getContext('2d');
-const size = 10;
-const scale = 1.35;
 // make a new face detector
 const faceDetector = new window.FaceDetector();
+const optionsInputs = document.querySelectorAll('.controls input[type="range"]');
+
+const options = {
+  size: 10,
+  scale: 1.35
+}
+
+function handleOption(event) {
+  console.log(event.currentTarget.value);
+  const { value, name } = event.currentTarget;
+  options[name] = parseFloat(value);
+}
+
+optionsInputs.forEach(input => input.addEventListener('input', handleOption));
 
 // populate the users video
 async function populateVideo() {
@@ -34,9 +46,6 @@ async function detect() {
 function drawFace(face) {
   const { width, height, top, left } = face.boundingBox;
   ctx.clearRect(0, 0, canvas.width, canvas.height);
-  ctx.strokeStyle = '#fff';
-  ctx.lineWidth = 2;
-  ctx.strokeRect(left, top, width, height);
 }
 
 function sensor({ boundingBox: face }) { // destructure bounding box from face, rename it to face
@@ -54,20 +63,20 @@ function sensor({ boundingBox: face }) { // destructure bounding box from face, 
     // 4 draw args
     face.x,
     face.y, // where we should start drawing the x and y
-    size,
-    size
+    options.size,
+    options.size
   )
 
-  const width = face.width * scale;
-  const height = face.height * scale;
+  const width = face.width * options.scale;
+  const height = face.height * options.scale;
   // draw the small face back on, but scaled up
   faceCtx.drawImage(
     // 5 src args
     faceCanvas, // source
     face.x,
     face.y,
-    size,
-    size,
+    options.size,
+    options.size,
     // 4 draw args
     face.x - (width - face.width) / 2,
     face.y - (height - face.height) / 2, // where we should start drawing the x and y
